@@ -1,0 +1,74 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Java中数字书写的小技巧"><meta name="keywords" content="android,java"><meta name="author" content="Cosinus Wx"><meta name="copyright" content="Cosinus Wx"><title>Java中数字书写的小技巧 | Cosinus.Wx's Blog</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.7.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script><!-- hexo-inject:begin --><!-- hexo-inject:end -->var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '已复制',
+    error: '复制失败',
+    noSupport: '浏览器不支持复制'
+  }
+} </script><meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="显示文章目录">显示博客信息</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">当前已读</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/images/avatar.jpg"></div><div class="author-info__name text-center">Cosinus Wx</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">21</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">11</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">8</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">快速访问</div><a class="author-info-links__name text-center" href="/about">关于</a><a class="author-info-links__name text-center" href="/atom.xml">RSS</a></div></div></div><div id="content-outer"><div class="plain" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Cosinus.Wx's Blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">HOME</a><a class="site-page" href="/archives">ARCHIVES</a><a class="site-page" href="/tags">TAGS</a><a class="site-page" href="/categories">CATEGORIES</a><a class="site-page" href="/about">ABOUT</a></span><span class="pull-right"></span></div></div><div class="layout" id="content-inner"><article id="post"><div class="plain" id="post-title">Java中数字书写的小技巧</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2015-06-12</time><span class="post-meta__separator">|</span><i class="fa fa-inbox" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/android/"> android</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/android/java/"> java</a></div><div class="article-container" id="post-content"><p>App开发中，通常需要有个值来表示app的版本号，比如下面的常量是我们app标识当前版本的。其中第一位表示android，第二三位02表示主版本号，四五位00表示子版本号，最后三位009表示迭代号。</p>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> CLIENT_VERSION = <span class="number">0x10200009</span>;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p>但是在版本号升级的时候，这种写法很容易出差错，因此我们换成下面这种写法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> CLIENT_VERSION = <span class="number">0x1_02_00_009</span>;</span><br></pre></td></tr></table></figure>
+
+<p>相信很多人第一眼看到会觉得这个会编译不过，其实这种写法在Java 7之后是允许的，除了在十六进制中这样写，八进制和十进制也是可以加下划线的，加多个下划线也是允许的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> CLIENT_VERSION = <span class="number">0x1_02___00___009</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> a = <span class="number">100_000_000</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> b = <span class="number">0_1000_000</span>;</span><br></pre></td></tr></table></figure>
+
+<p>数字之间是允许增加下划线，其他位置是不允许加下划线的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> CLIENT_VERSION = <span class="number">0</span>_x1_02_00_009; <span class="comment">// 0x中间不允许加</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> CLIENT_VERSION = <span class="number">0</span>x_1_02_00_009; <span class="comment">// 数字前面不允许加</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> CLIENT_VERSION = <span class="number">0x1_02_00_009</span>_; <span class="comment">// 数字后面不允许加</span></span><br></pre></td></tr></table></figure>
+
+<p>该特性是从java 7开始增加，有些同学可能会考虑是否在所有的android版本上都兼容，根据<a href="http://tools.android.com/recent/androidstudio032released" target="_blank" rel="noopener">android的文档</a>可以认为只要使用android studio，该写法都应该是被支持的。</p>
+<blockquote>
+<p>We’ve just released Android Studio 0.3.2. The main feature in this release is support for Android KitKat:</p>
+<p>Support for language features like the diamond operator, multi-catch, try-with-resources, strings in switches, etc.<br>When creating a new project, you can specify a source language level:</p>
+<p><img src="/images/android_java_level.webp" alt=""></p>
+<p><strong>Note that you can use all these language features not just with Android KitKat, but with older versions of Android too!</strong> There is one exception to that: try-with-resources, which will require minSdkVersion 19. Therefore, Studio will flag any uses in your code of try-with-resources if your minSdkVersion is less than 19:</p>
+</blockquote>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Cosinus Wx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">链接: </span><span class="post-copyright-info"><a href="https://blog.cosinuswx.com/posts/1334535007/">https://blog.cosinuswx.com/posts/1334535007/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权所有: </span><span class="post-copyright-info">除非另有说明，本博客所有文章均遵循<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a>协议.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/android/">android</a><a class="post-meta__tags" href="/tags/java/">java</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/posts/1734405025/"><i class="fa fa-chevron-left">  </i><span>java中的枚举类型解析</span></a></div><div class="next-post pull-right"><a href="/posts/668326027/"><span>数字音频基础</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 - 2020 By Cosinus Wx</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody" target="_blank" rel="noopener"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.7.0"></script><script src="/js/fancybox.js?version=1.7.0"></script><script src="/js/sidebar.js?version=1.7.0"></script><script src="/js/copy.js?version=1.7.0"></script><script src="/js/fireworks.js?version=1.7.0"></script><script src="/js/transition.js?version=1.7.0"></script><script src="/js/scroll.js?version=1.7.0"></script><script src="/js/head.js?version=1.7.0"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  CommonHTML: {
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "HTML-CSS": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "SVG": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  }
+});
+</script><script type="text/x-mathjax-config">MathJax.Hub.Queue(function() {
+  var all = MathJax.Hub.getAllJax(), i;
+  for (i=0; i < all.length; i += 1) {
+    all[i].SourceElement().parentNode.className += ' has-jax';
+  }
+});
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end --></body></html>

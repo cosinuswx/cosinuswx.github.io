@@ -1,0 +1,85 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="各种简写的含义"><meta name="keywords" content="android"><meta name="author" content="Cosinus Wx"><meta name="copyright" content="Cosinus Wx"><title>各种简写的含义 | Cosinus.Wx's Blog</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.7.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script><!-- hexo-inject:begin --><!-- hexo-inject:end -->var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '已复制',
+    error: '复制失败',
+    noSupport: '浏览器不支持复制'
+  }
+} </script><meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="显示文章目录">显示博客信息</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">当前已读</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IMEI"><span class="toc-text">IMEI</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IMSI"><span class="toc-text">IMSI</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MSISDN"><span class="toc-text">MSISDN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ICCID"><span class="toc-text">ICCID</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/images/avatar.jpg"></div><div class="author-info__name text-center">Cosinus Wx</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">21</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">11</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">8</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">快速访问</div><a class="author-info-links__name text-center" href="/about">关于</a><a class="author-info-links__name text-center" href="/atom.xml">RSS</a></div></div></div><div id="content-outer"><div class="plain" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Cosinus.Wx's Blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">HOME</a><a class="site-page" href="/archives">ARCHIVES</a><a class="site-page" href="/tags">TAGS</a><a class="site-page" href="/categories">CATEGORIES</a><a class="site-page" href="/about">ABOUT</a></span><span class="pull-right"></span></div></div><div class="layout" id="content-inner"><article id="post"><div class="plain" id="post-title">各种简写的含义</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2014-05-19</time><span class="post-meta__separator">|</span><i class="fa fa-inbox" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/android/"> android</a></div><div class="article-container" id="post-content"><h2 id="IMEI"><a href="#IMEI" class="headerlink" title="IMEI"></a><code>IMEI</code></h2><p>International Mobile Equipment Identification Number，国际移动设备识别码<br>由15位数字组成，其组成为：  </p>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><ul>
+<li>前6位数（TAC，Type ApprovalCode)是”型号核准号码”，一般代表机型。</li>
+<li>接着的2位数（FAC，Final Assembly Code)是”最后装配号”，一般代表产地。</li>
+<li>之后的6位数（SNR)是”串号”，一般代表生产顺序号。</li>
+<li>最后1位数（SP)通常是”0”，为检验码，备用。</li>
+</ul>
+<a id="more"></a>
+
+<p>IMEI码具有唯一性，贴在手机背面的标志上，并且读写于手机内存中。它也是该手机在厂家的”档案”和”身份证号”。</p>
+<h2 id="IMSI"><a href="#IMSI" class="headerlink" title="IMSI"></a><code>IMSI</code></h2><p>International Mobile Subscriber Identity，国际移动用户识别码<br>共有15位，其结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MCC+MNC+MSIN</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>MCC</strong>: Mobile Country Code，移动国家码，MCC的资源由国际电联（ITU）统一分配和管理，唯一识别移动用户所属的国家，共3位，中国为460;</li>
+<li><strong>MNC</strong>: Mobile Network Code，移动网络码，2~3位，中国移动系统使用00、02、07，中国联通GSM系统使用01、06，中国电信CDMA系统使用03、05，中国铁通系统使用20，一个典型的IMSI号码为460030912121001;</li>
+<li><strong>MSIN</strong>: Mobile Subscriber Identification Number, 移动用户识别号码,共有10位，其结构如下：EF+M0M1M2M3+ABCD其中的M0M1M2M3和MDN号码中的H0H1H2H3可存在对应关系，ABCD四位为自由分配。可以看出IMSI在NMSI号码前加了MCC，可以区别出每个用户的来自的国家，因此可以实现国际漫游。在同一个国家内，如果有多个移动网络运营商，可以通过MNC来进行区别.IMSI与手机号码绑定关系，在网络侧网元HLR（Home Location Register)内定义。</li>
+</ul>
+<h2 id="MSISDN"><a href="#MSISDN" class="headerlink" title="MSISDN"></a><code>MSISDN</code></h2><p>Mobile Station international ISDN number，移动台国际ISDN号码，即手机号</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MSISDN&#x3D;CC+NDC+SN</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>CC</strong>: 国家码 (中国为86)</li>
+<li><strong>NDC</strong>: 国内目的码</li>
+<li><strong>SN</strong>: 用户号码</li>
+</ul>
+<p>国内目的地码（NDC）包括接入号(MAC)N1N2N3和HLR的识别号H1H2H3H4。<br>接入号用于识别网络，我们目前采用:139、138……<br>HLR识别号表示用户归属的HLR，也表示移动业务本地网号。</p>
+<h2 id="ICCID"><a href="#ICCID" class="headerlink" title="ICCID"></a><code>ICCID</code></h2><p>Integrate Circuit Card Identity，集成电路卡识别码</p>
+<p>固化在手机SIM卡中， ICCID为IC卡的唯一识别号码，共有20位数字组成，其编码格式为：XXXXXX 0MFSS YYGXX XXXXX。分别介绍如下：</p>
+<ul>
+<li>前六位运营商代码：中国移动的为：898600；中国联通的为：898601。</li>
+</ul>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Cosinus Wx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">链接: </span><span class="post-copyright-info"><a href="https://blog.cosinuswx.com/posts/1926634976/">https://blog.cosinuswx.com/posts/1926634976/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权所有: </span><span class="post-copyright-info">除非另有说明，本博客所有文章均遵循<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a>协议.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/android/">android</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/posts/1953926195/"><i class="fa fa-chevron-left">  </i><span>笔记：高效程序员的45个习惯</span></a></div><div class="next-post pull-right"><a href="/posts/1362517184/"><span>笔记：程序员职业规划之道</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 - 2020 By Cosinus Wx</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody" target="_blank" rel="noopener"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.7.0"></script><script src="/js/fancybox.js?version=1.7.0"></script><script src="/js/sidebar.js?version=1.7.0"></script><script src="/js/copy.js?version=1.7.0"></script><script src="/js/fireworks.js?version=1.7.0"></script><script src="/js/transition.js?version=1.7.0"></script><script src="/js/scroll.js?version=1.7.0"></script><script src="/js/head.js?version=1.7.0"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  CommonHTML: {
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "HTML-CSS": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "SVG": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  }
+});
+</script><script type="text/x-mathjax-config">MathJax.Hub.Queue(function() {
+  var all = MathJax.Hub.getAllJax(), i;
+  for (i=0; i < all.length; i += 1) {
+    all[i].SourceElement().parentNode.className += ' has-jax';
+  }
+});
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end --></body></html>

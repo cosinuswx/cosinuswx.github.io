@@ -1,0 +1,99 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="【译】Android图形架构"><meta name="keywords" content="android"><meta name="author" content="Cosinus Wx"><meta name="copyright" content="Cosinus Wx"><title>【译】Android图形架构 | Cosinus.Wx's Blog</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.7.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script><!-- hexo-inject:begin --><!-- hexo-inject:end -->var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '已复制',
+    error: '复制失败',
+    noSupport: '浏览器不支持复制'
+  }
+} </script><meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="显示文章目录">显示博客信息</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">当前已读</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#BufferQueue和gralloc"><span class="toc-text">BufferQueue和gralloc</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#gralloc-HAL"><span class="toc-text">gralloc HAL</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SurfaceFlinger和硬件合成器"><span class="toc-text">SurfaceFlinger和硬件合成器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#硬件合成器（Hardware-Composer）"><span class="toc-text">硬件合成器（Hardware Composer）</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/images/avatar.jpg"></div><div class="author-info__name text-center">Cosinus Wx</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">21</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">11</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">8</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">快速访问</div><a class="author-info-links__name text-center" href="/about">关于</a><a class="author-info-links__name text-center" href="/atom.xml">RSS</a></div></div></div><div id="content-outer"><div class="plain" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Cosinus.Wx's Blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">HOME</a><a class="site-page" href="/archives">ARCHIVES</a><a class="site-page" href="/tags">TAGS</a><a class="site-page" href="/categories">CATEGORIES</a><a class="site-page" href="/about">ABOUT</a></span><span class="pull-right"></span></div></div><div class="layout" id="content-inner"><article id="post"><div class="plain" id="post-title">【译】Android图形架构</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2016-03-05</time><span class="post-meta__separator">|</span><i class="fa fa-inbox" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/android/"> android</a></div><div class="article-container" id="post-content"><p><a href="https://source.android.com/devices/graphics/architecture.html" target="_blank" rel="noopener">原文链接</a></p>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><p><em>每个开发者都应该了解Surface、SurfaceHolder、EGLSurface、SurfaceView、GLSurfaceView、SurfaceTexture、TextureView和SurfaceFlinger。</em></p>
+<p>本文描述了Android系统级图形架构的关键元素，以及它是如何被应用程序框架和多媒体系统使用的。重点在于图像数据缓存如何在系统间流转。如果你曾经好奇为什么SurfaceView和TextureView会这样实现，或者Surface和EGLSurface是如何交互的，那么你来对了地方。</p>
+<a id="more"></a>
+
+<p>本文假设你对Android设备和应用开发有一定的了解。你不需要对app框架很熟悉，本文也只会涉及到很少api，但是本文与其他的文档重叠较少。本文主要目的是让读者对绘制一帧到输出有一定的了解，能在开发应用程序的时候作出正确的选择。为了达到这个目的，我们从底层开始，描述UI类是如何协作的，而不是它们怎么使用的。</p>
+<p>每一节包含后面章节所需的知识，所以最好从头开始阅读，不要直接跳到感兴趣的章节。我们先从Android的图像缓存介绍，再到合成及显示机制，再到更高级别的数据合成机制。</p>
+<p>本文以Android 4.4为例进行介绍，早期系统版本和以后的版本都有可能会有些差异，有些地方会使用一些版本特定的特性。</p>
+<p>文章穿插着AOSP和<a href="https://github.com/google/grafika" target="_blank" rel="noopener">Grafika</a>的源码，Grafika是一个Google用来测试的开源项目，它比完整的示例代码要敷衍，但是也足够了。</p>
+<h2 id="BufferQueue和gralloc"><a href="#BufferQueue和gralloc" class="headerlink" title="BufferQueue和gralloc"></a>BufferQueue和gralloc</h2><p>为了理解Android图形系统是如何工作的，我们必须从底层入手。Android的图形系统核心是一个叫做BufferQueue的类。它的角色很简单：连接产生图像数据的事物（生产者）和接受数据用来显示或者后续处理的事物（消费者）。生产者和消费者可以在不同的进程，基本上系统间转移图像数据的事物都依赖于BufferQueue。</p>
+<p>使用方法很简单，生产者获取一个特定参数（包括宽高、像素格式、使用的参数），且未使用的缓存（dequeueBuffer()），生产者填充这个缓存，然后再将其放回队列（queueBuffer()）。稍后，消费者获取这个缓存（acquireBuffer()），使用缓存的内容。当消费者使用完成后，将其放回队列中（releaseBuffer()）。</p>
+<p>最新的Android设备支持“同步框架”，允许硬件设备在操作图像数据的同时，可以做一些其他的事情。例如，生产者提交一系列的OpenGL ES的绘制命令后，在绘制完成前将输出缓存入队，该缓存伴随一个fence，它会在内容准备好后触发。第二个fence在将缓存放回空闲列表前，在消费者使用完缓存后触发。该方法可以提高系统的反应和吞吐率。</p>
+<p>队列的一些熟悉，如能使用的最大的缓存数目，由生产者和消费者来决定。</p>
+<p>BufferQueue负责在需要的时候分配缓存，缓存是被保留的，除非有某些参数变更。比如，生成者开始请求不同大小的缓存，那么旧的缓存会被释放，然后分配需要的缓存。</p>
+<p>该数据结构由消费者创建并持有。在Android 4.3的时候，只有生产者是“binderized”的，生产者能在其他进程，但是消费者必须是在队列创建的进程。这个在4.4有些改进，转向了更通用的实现。</p>
+<p>BufferQueue一定不会复制缓存的内容，复制内容是相当低效的，因此缓存都是通过句柄（handle）来传递的。</p>
+<h3 id="gralloc-HAL"><a href="#gralloc-HAL" class="headerlink" title="gralloc HAL"></a>gralloc HAL</h3><p>实际的缓存分配由称为“gralloc”的内存分配器来执行的，它实现了厂商特定的硬件抽象层的接口（见hardware/libhardware/include/hardware/gralloc.h）。alloc()函数需要传入你期望的参数：宽、高、像素格式，还有一些使用的标志位，这些标志位值得深究。</p>
+<p>gralloc不是在堆上分配内存的另外种方式，某些场景下，gralloc分配的内存可能不是缓存一致的，也可能是无法从用户空间访问的。这些种类由使用标志位来决定，包括以下属性：</p>
+<ul>
+<li>多久一次从软件（CPU）访问缓存</li>
+<li>多久一次从硬件（GPU）访问缓存</li>
+<li>缓存是否用来作为OpenGL ES的纹理</li>
+<li>缓存是否被视频编码器使用</li>
+</ul>
+<p>例如，如果你指定格式为RGBA 8888，就表明该buffer可能从软件层面访问，意味着你的应用会直接访问像素，那么分配器就需要创建每个像素4字节、R-G-B-A顺序的缓存。如果你改指定缓存只会从硬件访问，并且是作为GLES的纹理，那么分配器就会按照GLES驱动所期望的方式分配缓存：BGRA的顺序、非线性“swizzled”布局、可选的颜色格式等㩐。使用硬件期望的像素格式可以提高性能。</p>
+<p>某些平台下有些值无法组合在一起，例如，“视频编码器”标志可能要求YUV格式，所以增加”软件访问“和指定RGBA 8888格式可能会导致失败。</p>
+<p>gralloc分配器返回的handle能通过Binder在进程之间传输。</p>
+<h2 id="SurfaceFlinger和硬件合成器"><a href="#SurfaceFlinger和硬件合成器" class="headerlink" title="SurfaceFlinger和硬件合成器"></a>SurfaceFlinger和硬件合成器</h2><p>SurfaceFlinger的角色是从多个输入源获取数据，将其他进行合成，然后将他们送到显示器。曾经这些是靠软件传输数据块（software blitting）到硬件帧缓存（如/dev/graphics/fb0），但这已经是很早之前了。</p>
+<p>当应用显示到前台的时候，WindowManager向SurfaceFlinger申请一个绘制的surface。SurfaceFlinger创建一个“layer”，其主要组件就是BufferQueue，SurfaceFlinger作为消费者。提供给生产者的Binder对象通过WindowManager发给app，然后就可以开始直接将帧发给SurfaceFlinger。</p>
+<blockquote>
+<p>注意：WindowManager使用术语“window”而不是”layer“来表示，因为”layer”有其他含义。我们打算使用SurfaceFlinger的术语，使用术语”layer“，所以有争论说SurfaceFlinger应该叫做LayerFlinger。</p>
+</blockquote>
+<p>对于大多数app，在屏幕上始终会存在三层：屏幕最上面的状态栏、底部或者旁边的导航栏、应用程序的UI。一些app也可能更多或者更少的层，比如默认的launcher给壁纸单独分了一层，而全屏的游戏可能会隐藏状态栏。每一层可以单独更新，状态栏和导航栏由系统进程来绘制，而app层由app来绘制，两者之间没有协作。</p>
+<p>设备显示器以固定帧率进行刷新，在手机和平板通常为每秒60帧。如果显示的内容在刷新间隔中进行更新，就会出现“撕裂(terring)”现象，所以只在刷新的时候更新内容就显得很重要。当它能安全的更新内容的时候，系统会收到来自显示器的信号，基于历史原因，我们称之为垂直同步信号（VSYNC）。</p>
+<p>刷新率不同时期不一样，比如一些移动设备在当前条件下刷新率范围从58到62fps。对于HDMI连接的电视，理论下为了适应视频，可能会降到24或者48HZ。因为我们只能在每个刷新周期更新一次屏幕，所以每秒200更新屏幕就很浪费，因为大部分的帧都没法看到。因此SurfaceFlinger在显示器准备显示新的内容的时候被唤醒，而不是在app提交buffer的时候唤醒。</p>
+<p>当VSYNC信号到的时候，SurfaceFlinger会遍历它整个列表，查找有没有新的缓存。如果找到新的话，它会获取该缓存；如果没有找到的话，就会使用上次获取的缓存。SurfaceFlinger一定需要一些内容来显示，所以必须要获取到一个缓存。如果某一个layer没有提交一个缓存，那么该layer就会被忽略。</p>
+<p>一旦SurfaceFlinger获取到所有可见layer的缓存后，它就会要求硬件合成器执行合成。</p>
+<h2 id="硬件合成器（Hardware-Composer）"><a href="#硬件合成器（Hardware-Composer）" class="headerlink" title="硬件合成器（Hardware Composer）"></a>硬件合成器（Hardware Composer）</h2><p>硬件合成抽象层（HWC）最开始在Android 3.0（”Honeycomb”）引入，现在已经更新换代多年了。它的主要目的是利用所有可用的硬件以最高效的方式进行合成。由于是硬件抽象层，所以它的实现与设备相关，通常由显示设备厂商实现。</p>
+<p>当你考虑到“平面覆盖”时，这种方式的价值很容易理解。平面覆盖的主要目的就是将多个buffer合成在一起，但是是在显示设备上，而不是在GPU上。例如，假设你有台普通的android手机，横屏或者竖屏，状态栏在最上面，导航栏在底部，应用程序在其他地方。每一层的内容在不同的缓存里面，你可以将应用程序的内容画在scratch缓存，然后将状态栏画在上面，最后将导航栏画在最上面，最终将scratch缓存给到显示设备。也可以将所有的缓存直接交给显示设备，然后告诉显示设备对于屏幕上面不同的地方读取不同的缓存。显然后者的效率更高。</p>
+<p>正如你所预计的，不同的显示设备性能相差很大。通过api，可以指定覆盖层数、layer是否旋转或者混合、是否某些层级有位置限制或者有覆盖。所以HWC如下工作：</p>
+<ul>
+<li>SurfaceFlinger提供给HWC完整的层级列表，然后问HWC：你想怎么处理这些？</li>
+<li>HWC通过标记将每一层标记为“overlay”或者”GLES合成“作为回复</li>
+<li>SurfaceFlinger负责所有的GLES合成，将输出传给HWC，并且让HWC处理其他的</li>
+</ul>
+<p>由于做决定的代码是由厂商定制的，所以每个设备都能达到最好的性能。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Cosinus Wx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">链接: </span><span class="post-copyright-info"><a href="https://blog.cosinuswx.com/posts/1763227376/">https://blog.cosinuswx.com/posts/1763227376/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权所有: </span><span class="post-copyright-info">除非另有说明，本博客所有文章均遵循<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a>协议.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/android/">android</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/posts/517805189/"><i class="fa fa-chevron-left">  </i><span>如何编译CyanogenMod系统</span></a></div><div class="next-post pull-right"><a href="/posts/324364040/"><span>RenderScript的基础使用</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 - 2020 By Cosinus Wx</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody" target="_blank" rel="noopener"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.7.0"></script><script src="/js/fancybox.js?version=1.7.0"></script><script src="/js/sidebar.js?version=1.7.0"></script><script src="/js/copy.js?version=1.7.0"></script><script src="/js/fireworks.js?version=1.7.0"></script><script src="/js/transition.js?version=1.7.0"></script><script src="/js/scroll.js?version=1.7.0"></script><script src="/js/head.js?version=1.7.0"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  CommonHTML: {
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "HTML-CSS": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "SVG": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  }
+});
+</script><script type="text/x-mathjax-config">MathJax.Hub.Queue(function() {
+  var all = MathJax.Hub.getAllJax(), i;
+  for (i=0; i < all.length; i += 1) {
+    all[i].SourceElement().parentNode.className += ' has-jax';
+  }
+});
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end --></body></html>

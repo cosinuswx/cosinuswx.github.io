@@ -1,0 +1,206 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Android音视频之旅2 — 录音为wav文件"><meta name="keywords" content="android,音视频"><meta name="author" content="Cosinus Wx"><meta name="copyright" content="Cosinus Wx"><title>Android音视频之旅2 — 录音为wav文件 | Cosinus.Wx's Blog</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.7.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script><!-- hexo-inject:begin --><!-- hexo-inject:end -->var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '已复制',
+    error: '复制失败',
+    noSupport: '浏览器不支持复制'
+  }
+} </script><meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="显示文章目录">显示博客信息</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">当前已读</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-几个概念"><span class="toc-text">1. 几个概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-创建AudioRecord"><span class="toc-text">2. 创建AudioRecord</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-读取语音数据"><span class="toc-text">3. 读取语音数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-保存成wav文件"><span class="toc-text">4. 保存成wav文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-录制结束"><span class="toc-text">5. 录制结束</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-总结"><span class="toc-text">6. 总结</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/images/avatar.jpg"></div><div class="author-info__name text-center">Cosinus Wx</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">21</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">11</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">8</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">快速访问</div><a class="author-info-links__name text-center" href="/about">关于</a><a class="author-info-links__name text-center" href="/atom.xml">RSS</a></div></div></div><div id="content-outer"><div class="plain" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Cosinus.Wx's Blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">HOME</a><a class="site-page" href="/archives">ARCHIVES</a><a class="site-page" href="/tags">TAGS</a><a class="site-page" href="/categories">CATEGORIES</a><a class="site-page" href="/about">ABOUT</a></span><span class="pull-right"></span></div></div><div class="layout" id="content-inner"><article id="post"><div class="plain" id="post-title">Android音视频之旅2 — 录音为wav文件</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2017-05-01</time><span class="post-meta__separator">|</span><i class="fa fa-inbox" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/%E9%9F%B3%E8%A7%86%E9%A2%91/"> 音视频</a></div><div class="article-container" id="post-content"><p>本文以录制说话的声音为场景，介绍如何使用AndroidRecord来录音，并且将声音保存为wav文件。wav格式算是最简单的音频文件格式，因此，我们可以完全自己实现保存和读取wav格式的代码，也更容易理解。本文的源码可以在<a href="https://github.com/cosinuswx/AndroidMisc/blob/develop/app/src/com/winomtech/androidmisc/audio/PcmRecorder.java" target="_blank" rel="noopener">这里</a>找到。</p>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><a id="more"></a>
+
+<h2 id="1-几个概念"><a href="#1-几个概念" class="headerlink" title="1. 几个概念"></a>1. 几个概念</h2><p>在 <a href="../668326027/">数字音频基础</a> 中讲到了一些数字音频的基础知识，这里将几个需要用到的概念再解释下：</p>
+<ol>
+<li><strong>采样</strong>：录音的本质就是将连续的空气压力变化录制下来。由于时间是连续的，数字化录音就只能在某些时间记录下那时的空气压力变化，这个过程就是采样。</li>
+<li><strong>量化及量化误差</strong>：量化就是用数字来表示空气压力的变化值，由于计算机的存储能力有限，无法精确表达所有的空气压力变化值，所以真实的压力值肯定会与量化值有一定的误差。</li>
+<li><strong>通道数</strong>：这个就和我们日常所说的左声道、右声道是一个意思，通道数指的就是有多少个声道。</li>
+<li><strong>采样率</strong>：即一秒钟采集的次数。</li>
+</ol>
+<h2 id="2-创建AudioRecord"><a href="#2-创建AudioRecord" class="headerlink" title="2. 创建AudioRecord"></a>2. 创建AudioRecord</h2><p>在录音的时候，我们需要构造一个AudioRecord对象，然后通过它与硬件设备打交道，来获取语音数据。先看看AudioRecord的参数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">AudioRecord</span><span class="params">(<span class="keyword">int</span> audioSource,</span></span></span><br><span class="line"><span class="function"><span class="params">                   <span class="keyword">int</span> sampleRateInHz,</span></span></span><br><span class="line"><span class="function"><span class="params">                   <span class="keyword">int</span> channelConfig,</span></span></span><br><span class="line"><span class="function"><span class="params">                   <span class="keyword">int</span> audioFormat,</span></span></span><br><span class="line"><span class="function"><span class="params">                   <span class="keyword">int</span> bufferSizeInBytes)</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>audioSource</strong>：录音源，指定声音是从哪里录制的，常用的参数有：MIC、VOICE_COMMUNICATION。MIC录制的时候没啥特别的，但是VOICE_COMMUNICATION就有些特别，它表示当前录音是为了语音通信，比如VoIP。在这种场景下，驱动及硬件就可以做一些特殊的处理，比如开启回声消除等算法来达到更好的通话音质。</li>
+<li><strong>sampleRateInHz</strong>：即前面说的采样率，常用采样率有：8000、16000，CD音质使用的是44.1khz。</li>
+<li><strong>channelConfig</strong>：声道配置，和日常说的左右声道意思一样，只是这个参数所使用的值是一些规定好的值，比如CHANNEL_IN_MONO表示单声道，CHANNEL_IN_STEREO表示立体声。</li>
+<li><strong>audioFormat</strong>：这个是指量化所采用的方案，一般使用的是 ENCODING_PCM_16BIT 或ENCODING_PCM_8BIT，PCM表示两个量化值之间是线性关系，而不是类似指数那种关系。16BIT和8BIT指的是使用2个字节来表示一个量化点，还是使用一个字节来表示。</li>
+<li><strong>bufferSizeInBytes</strong>：用字节表示的缓冲区大小，AudioRecord在收集到语音数据后，会缓存到特定的缓冲区里面，等待调用者读取。缓冲区的大小不能小于getMinBufferSize所返回的值，否则会导致初始化失败。调用者为了防止未能及时获取语音数据，而导致语音数据丢失，可以将这个值设为几倍于最小缓冲区的大小。</li>
+</ul>
+<p>本文的录音场景是录制人声，所以采样率可以设置为16000、通道数为立体声。声音的缓存大小最小值为getMinBufferSize返回的值，为了防止没有及时读取而导致缓存溢出的情况，这里将缓存大小设为最小值的8倍。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> sampleRate = <span class="number">16000</span>;</span><br><span class="line"><span class="keyword">int</span> channelConfig = AudioFormat.CHANNEL_CONFIGURATION_STEREO;</span><br><span class="line"><span class="keyword">int</span> minBufSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, AUDIO_FORMAT);</span><br><span class="line">mAudioRecord = <span class="keyword">new</span> AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelConfig,</span><br><span class="line">                AUDIO_FORMAT, <span class="number">8</span> * minBufSize);</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-读取语音数据"><a href="#3-读取语音数据" class="headerlink" title="3. 读取语音数据"></a>3. 读取语音数据</h2><p>在初始化完了AudioRecord之后，就和语音设备连接好了，只需要调用AudioRecord.startRecording()就开始录音了。录到的声音是保存到AudioRecord自己维护的缓存里面，需要我们通过AudioRecord.read()方法来读取一段声音数据。接口参数如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">read</span><span class="params">(<span class="keyword">byte</span>[] audioData,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">int</span> offsetInBytes,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">int</span> sizeInBytes)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>这个方法是一个阻塞的方法，在读取到sizeInBytes大小的语音数据后，或发生错误时，这个方法才会返回。那么这个sizeInBytes应该设置为多大呢？</p>
+<p>在计算机里面经常喜欢使用对齐的方式来简化逻辑，比如4字节对齐之类的。那么声音读取的话，一般以1ms所包含的字节数来作为对齐单位。比如在采样率为16000、立体声、ENCODING_PCM_16BIT 的场景下，1ms就需要采集16次，每一次采集的字节数为2 * 2，所以1ms所包含的字节数为64字节。所以sizeInBytes应该64字节对齐，但是1ms读取一次64字节的数据显然是得不偿失的，通常设为20ms读取一次，所以20ms的数据量为1280字节。</p>
+<p>为了连续录音的话，我们就需要写一个循环来一直读取数据，读取到数据之后，将其存在文件中，然后继续等待数据就绪，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RecordThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);</span><br><span class="line">		<span class="keyword">if</span> (mAudioRecord.getState() == AudioRecord.STATE_UNINITIALIZED) &#123;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[mBufSize];</span><br><span class="line">		mAudioRecord.startRecording();</span><br><span class="line">		<span class="keyword">while</span> (!mStopFlag) &#123;</span><br><span class="line">			<span class="keyword">int</span> len = mAudioRecord.read(buffer, <span class="number">0</span>, buffer.length);</span><br><span class="line">			mWavWriter.writeToFile(buffer, len);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-保存成wav文件"><a href="#4-保存成wav文件" class="headerlink" title="4. 保存成wav文件"></a>4. 保存成wav文件</h2><p><img src="/images/audio_digitize/wav_format.jpg" alt="wav格式"></p>
+<blockquote>
+<p>注意：图中最左侧endian列表示该字段是大端还是小端，写入数据的时候，需要区分。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="left">偏移</th>
+<th align="left">大小</th>
+<th align="left">名字</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">0</td>
+<td align="left">4</td>
+<td align="left">块ID</td>
+<td align="left">包含ASCII字符串“RIFF”（大端形式表示为0x52494646）</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">4</td>
+<td align="left">块大小</td>
+<td align="left">4 + (8 + 子块1大小) + (8 + 子块2大小)，该块在这个数字之后的数据大小）</td>
+</tr>
+<tr>
+<td align="left">8</td>
+<td align="left">4</td>
+<td align="left">格式</td>
+<td align="left">包含字符串“WAVE”（大端形式表示为0x57415645）</td>
+</tr>
+<tr>
+<td align="left">12</td>
+<td align="left">4</td>
+<td align="left">子块1ID</td>
+<td align="left">包含字符串“fmt ”（大端形式表示为0x666d7420）</td>
+</tr>
+<tr>
+<td align="left">16</td>
+<td align="left">4</td>
+<td align="left">子块1大小</td>
+<td align="left">内容为PCM时为16，表示该子块在该数字之后的数据大小</td>
+</tr>
+<tr>
+<td align="left">20</td>
+<td align="left">2</td>
+<td align="left">语音格式</td>
+<td align="left">内容为PCM为1</td>
+</tr>
+<tr>
+<td align="left">22</td>
+<td align="left">2</td>
+<td align="left">通道数</td>
+<td align="left">单声道为1，立体声为2，等等</td>
+</tr>
+<tr>
+<td align="left">24</td>
+<td align="left">4</td>
+<td align="left">采样率</td>
+<td align="left">8000、44100等</td>
+</tr>
+<tr>
+<td align="left">28</td>
+<td align="left">4</td>
+<td align="left">字节率</td>
+<td align="left">== 采样率 * 通道数 * 每个样本的位数 / 8</td>
+</tr>
+<tr>
+<td align="left">32</td>
+<td align="left">2</td>
+<td align="left">块对齐</td>
+<td align="left">== 通道数 * 每个样本的位数 / 8</td>
+</tr>
+<tr>
+<td align="left">34</td>
+<td align="left">2</td>
+<td align="left">每个样本的位数</td>
+<td align="left">8位时为8，16位时为16，等等</td>
+</tr>
+<tr>
+<td align="left">36</td>
+<td align="left">4</td>
+<td align="left">子块2ID</td>
+<td align="left">包含字符串“data”（大端形式为0x64617461）</td>
+</tr>
+<tr>
+<td align="left">40</td>
+<td align="left">4</td>
+<td align="left">子块2大小</td>
+<td align="left">== 样本数 * 通道数 * 每个样本的位数 / 8</td>
+</tr>
+<tr>
+<td align="left">44</td>
+<td align="left">*</td>
+<td align="left">数据</td>
+<td align="left">实际的语音数据</td>
+</tr>
+</tbody></table>
+<p>可以看出wav格式是超级简单，我们按照格式先写入数据块前面一部分，这一段总共是44字节：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">44</span>);</span><br><span class="line">byteBuffer.order(ByteOrder.LITTLE_ENDIAN);</span><br><span class="line">byteBuffer.putInt(<span class="number">0x46464952</span>);</span><br><span class="line">byteBuffer.putInt(<span class="number">0</span>);</span><br><span class="line">byteBuffer.putInt(<span class="number">0x45564157</span>);</span><br><span class="line">byteBuffer.putInt(<span class="number">0x20746d66</span>);</span><br><span class="line">byteBuffer.putInt(<span class="number">16</span>);</span><br><span class="line">byteBuffer.putShort((<span class="keyword">short</span>)<span class="number">1</span>);</span><br><span class="line">byteBuffer.putShort((<span class="keyword">short</span>) channelCnt);</span><br><span class="line">byteBuffer.putInt(sampleRate);</span><br><span class="line">byteBuffer.putInt((sampleRate * channelCnt * (audioEncoding == AudioFormat.ENCODING_PCM_16BIT ? <span class="number">2</span> : <span class="number">1</span>)));</span><br><span class="line">byteBuffer.putShort((<span class="keyword">short</span>) (channelCnt * (audioEncoding == AudioFormat.ENCODING_PCM_16BIT ? <span class="number">2</span> : <span class="number">1</span>)));</span><br><span class="line">byteBuffer.putShort((<span class="keyword">short</span>) (audioEncoding == AudioFormat.ENCODING_PCM_16BIT ? <span class="number">16</span> : <span class="number">8</span>));</span><br><span class="line">byteBuffer.putInt(<span class="number">0x61746164</span>);</span><br><span class="line">byteBuffer.putInt(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>接着就是写入数据了。</p>
+<h2 id="5-录制结束"><a href="#5-录制结束" class="headerlink" title="5. 录制结束"></a>5. 录制结束</h2><p>因为录音设备是系统资源，而且是同时只能一个进程使用，所以一定要在使用完毕后进行关闭：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mAudioRecord.stop();</span><br><span class="line">mAudioRecord.release();</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是wav格式中ChunkSize和subChunk2Size都是包含语音数据的大小，所以在结束录制之后，将这两个数值修改为包含语音数据之后的大小：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">RandomAccessFile ras = <span class="keyword">new</span> RandomAccessFile(mFilePath, <span class="string">"rw"</span>);</span><br><span class="line">ras.seek(<span class="number">4</span>);</span><br><span class="line"><span class="comment">// 文件总长度</span></span><br><span class="line">ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">4</span>);</span><br><span class="line">byteBuffer.order(ByteOrder.LITTLE_ENDIAN);</span><br><span class="line">byteBuffer.putInt(mFileSize - <span class="number">8</span>);</span><br><span class="line">ras.write(byteBuffer.array());</span><br><span class="line"><span class="comment">// 数据总长度</span></span><br><span class="line">byteBuffer.rewind();</span><br><span class="line">byteBuffer.putInt(mFileSize - <span class="number">42</span>);</span><br><span class="line">ras.seek(<span class="number">40</span>);</span><br><span class="line">ras.write(byteBuffer.array());</span><br></pre></td></tr></table></figure>
+
+<p>然后从手机中将wav文件取出来，使用电脑上任何一个音乐播放器，都应该是能播放该wav文件的。当然也可以使用Adobe Audition这个软件来可视化的编辑声音的，图下是我从1数到10的录音文件：</p>
+<p><img src="/images/audio_digitize/adobe_audition_stereo_view.jpg" alt="双声道音波图"></p>
+<p>上面是左声道，下面是右声道，由于是手机录制的声音，所以两个声道都差不多（所以一般语音消息可以采用单声道）。</p>
+<p>这里有个问题：双声道时，read返回的数据哪些是左声道的，哪些是右声道的？这个问题很容易想到应该是左右声道的数值是交织在一起的，即一个左声道样本、一个右声道样本、一个左声道样本、一个右声道样本。不过我们可以做个实验来验证，比如我们只把左声道的声音设为静音，只需要在读取后，将左声道声音设置为0即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (!mStopFlag) &#123;</span><br><span class="line">    <span class="keyword">int</span> len = mAudioRecord.read(buffer, <span class="number">0</span>, buffer.length);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i += <span class="number">4</span>) &#123;</span><br><span class="line">        buffer[i] = buffer[i + <span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    mWavWriter.writeToFile(buffer, len);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>效果如下图：</p>
+<p><img src="/images/audio_digitize/adobe_audition_mute_left.jpg" alt="左声道静音效果图"></p>
+<h2 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h2><p>android中，还可以使用其他方式来录音，比如MediaRecorder，但是它给上层的接口无法接触到语音数据流。而AudioRecord作为一个较底层的接口，可以让我们对语音的数据进行一些处理，以达到某些目的，比如：</p>
+<ol>
+<li><strong>显示当前音量大小</strong>：每个采样点的数值及时反馈到UI界面上，给用户反馈，让用户知道当前的声音大小。</li>
+<li><strong>静音检测</strong>：如果用户不给应用录音权限的时候，程序读取到的数据都是没有声音的，也就是采样点的值为0。通过检查采样点的数值是否都为0，可以判断出来是否有录音权限。</li>
+</ol>
+<p>当然不同场景需要使用不同的方法，比如需要录音存为mp3文件，使用AudioRecord的话，就还需要自己引入mp3的编码库。而MediaRecorder却可以直接处理mp3，所以下一篇将介绍使用MediaRecorder录音。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Cosinus Wx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">链接: </span><span class="post-copyright-info"><a href="https://blog.cosinuswx.com/posts/3076920738/">https://blog.cosinuswx.com/posts/3076920738/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权所有: </span><span class="post-copyright-info">除非另有说明，本博客所有文章均遵循<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a>协议.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/android/">android</a><a class="post-meta__tags" href="/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/">音视频</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/posts/2328614562/"><i class="fa fa-chevron-left">  </i><span>string.xml中的属性</span></a></div><div class="next-post pull-right"><a href="/posts/954459163/"><span>Camera2点击对焦实现</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 - 2020 By Cosinus Wx</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody" target="_blank" rel="noopener"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.7.0"></script><script src="/js/fancybox.js?version=1.7.0"></script><script src="/js/sidebar.js?version=1.7.0"></script><script src="/js/copy.js?version=1.7.0"></script><script src="/js/fireworks.js?version=1.7.0"></script><script src="/js/transition.js?version=1.7.0"></script><script src="/js/scroll.js?version=1.7.0"></script><script src="/js/head.js?version=1.7.0"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  CommonHTML: {
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "HTML-CSS": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "SVG": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  }
+});
+</script><script type="text/x-mathjax-config">MathJax.Hub.Queue(function() {
+  var all = MathJax.Hub.getAllJax(), i;
+  for (i=0; i < all.length; i += 1) {
+    all[i].SourceElement().parentNode.className += ' has-jax';
+  }
+});
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end --></body></html>

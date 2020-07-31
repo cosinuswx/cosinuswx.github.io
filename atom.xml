@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Cosinus.Wx&#39;s Blog</title>
+  
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://blog.cosinuswx.com/"/>
+  <updated>2020-07-31T17:13:24.085Z</updated>
+  <id>https://blog.cosinuswx.com/</id>
+  
+  <author>
+    <name>Cosinus Wx</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Android延时任务精度问题</title>
+    <link href="https://blog.cosinuswx.com/posts/3554715587/"/>
+    <id>https://blog.cosinuswx.com/posts/3554715587/</id>
+    <published>2020-03-21T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;1-起因&quot;&gt;&lt;a href=&quot;#1-起因&quot; class=&quot;headerlink&quot; title=&quot;1. 起因&quot;&gt;&lt;/a&gt;1. 起因&lt;/h2&gt;&lt;p&gt;前些日子，在做一个技术方案讨论时，对于一个轮询方案中轮询间隔的分歧，有些同事认为时间间隔可以设置为 3ms，另外有些同事认为时间太短没意义，因为系统调度不过来。&lt;/p&gt;
+&lt;p&gt;不过在我印象中，延时任务似乎比较精准。正好手头闲下来了，可以对该问题进行更深入一些的研究。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Android" scheme="https://blog.cosinuswx.com/categories/Android/"/>
+    
+    
+      <category term="Android" scheme="https://blog.cosinuswx.com/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>编译Android版本的FFMPEG</title>
+    <link href="https://blog.cosinuswx.com/posts/3448898726/"/>
+    <id>https://blog.cosinuswx.com/posts/3448898726/</id>
+    <published>2019-08-13T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;编译桌面版本的FFMPEG比较简单，&lt;code&gt;configure&lt;/code&gt; 之后直接 &lt;code&gt;make&lt;/code&gt; 就可以了，但是编译Android版本的FFMPEG就需要使用NDK来编译了。使用NDK编译项目有三种方法：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;基于 Make 的 &lt;a href=&quot;https://developer.android.com/ndk/guides/ndk-build.html?hl=zh-cn&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;ndk-build&lt;/a&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://developer.android.com/ndk/guides/cmake.html?hl=zh-cn&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;CMake&lt;/a&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://developer.android.com/ndk/guides/standalone_toolchain.html?hl=zh-cn&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;独立工具链&lt;/a&gt;，用于与其他编译系统集成，或与基于 &lt;code&gt;configure&lt;/code&gt; 的项目搭配使用。&lt;/li&gt;
+&lt;/ol&gt;
+    
+    </summary>
+    
+      <category term="音视频" scheme="https://blog.cosinuswx.com/categories/%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
+    
+    
+      <category term="音视频" scheme="https://blog.cosinuswx.com/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Xcode 10 迁移心得</title>
+    <link href="https://blog.cosinuswx.com/posts/2782435118/"/>
+    <id>https://blog.cosinuswx.com/posts/2782435118/</id>
+    <published>2019-01-02T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Xcode 10已经发布了许久，由于工程中依赖了多个第三方库，有可能出现不兼容的情况，因此拖着不升级。最近将工程的一部分逻辑作为SDK提供给了合作方使用，而合作方希望能兼容Xcode 10，所以只能硬着头皮进行迁移。&lt;/p&gt;
+&lt;p&gt;工程直接使用Xcode 10进行编译后，会出现如下诡异的错误提示，而且无论怎么改都是错误。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="iOS" scheme="https://blog.cosinuswx.com/categories/iOS/"/>
+    
+    
+      <category term="iOS" scheme="https://blog.cosinuswx.com/tags/iOS/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用Jenkins搭建Andriod App持续集成环境</title>
+    <link href="https://blog.cosinuswx.com/posts/3673844208/"/>
+    <id>https://blog.cosinuswx.com/posts/3673844208/</id>
+    <published>2018-10-28T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;现在大多数公司都采用jenkins来做持续编译环境，我们公司也是一样。为了保持jenkins编译环境容易搭建、且干净，使用了docker环境。&lt;/p&gt;
+&lt;p&gt;本地中的下载地址一律替换为 &lt;em&gt;&lt;a href=&quot;https://example.com&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://example.com&lt;/a&gt;&lt;/em&gt;，不同的网站下载方式有些不同，因此建议先在官网下载好，然后放在网盘上（支持公开链接或者webdav最好，webdav可以通过 &lt;code&gt;--user&lt;/code&gt; 指定用户名和密码）。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="jenkins" scheme="https://blog.cosinuswx.com/tags/jenkins/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>string.xml中的属性</title>
+    <link href="https://blog.cosinuswx.com/posts/2328614562/"/>
+    <id>https://blog.cosinuswx.com/posts/2328614562/</id>
+    <published>2017-12-18T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;1-product&quot;&gt;&lt;a href=&quot;#1-product&quot; class=&quot;headerlink&quot; title=&quot;1. product&quot;&gt;&lt;/a&gt;1. product&lt;/h2&gt;&lt;p&gt;针对这种同名字符串，通过不同的product引用不同的字符串内容，例如：&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+      <category term="rom" scheme="https://blog.cosinuswx.com/categories/android/rom/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="rom" scheme="https://blog.cosinuswx.com/tags/rom/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Android音视频之旅2 — 录音为wav文件</title>
+    <link href="https://blog.cosinuswx.com/posts/3076920738/"/>
+    <id>https://blog.cosinuswx.com/posts/3076920738/</id>
+    <published>2017-05-01T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文以录制说话的声音为场景，介绍如何使用AndroidRecord来录音，并且将声音保存为wav文件。wav格式算是最简单的音频文件格式，因此，我们可以完全自己实现保存和读取wav格式的代码，也更容易理解。本文的源码可以在&lt;a href=&quot;https://github.com/cosinuswx/AndroidMisc/blob/develop/app/src/com/winomtech/androidmisc/audio/PcmRecorder.java&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;这里&lt;/a&gt;找到。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="音视频" scheme="https://blog.cosinuswx.com/categories/%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="音视频" scheme="https://blog.cosinuswx.com/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Camera2点击对焦实现</title>
+    <link href="https://blog.cosinuswx.com/posts/954459163/"/>
+    <id>https://blog.cosinuswx.com/posts/954459163/</id>
+    <published>2017-04-18T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;android从5.0开始，废弃了原有的Camera接口，提供了全新的Camera2接口。Camera2接口为了给app提供更强大更低级的摄像头控制，将整个的摄像头框架及流程进行了修改。在使用Camera2时，发现手工对焦的实现逻辑与旧的Camera实现该逻辑有较大不同，本文就谈下如何使用Camera2进行手工对焦。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="音视频" scheme="https://blog.cosinuswx.com/categories/%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="音视频" scheme="https://blog.cosinuswx.com/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>【译】基础篇：RCU是什么？</title>
+    <link href="https://blog.cosinuswx.com/posts/1189917582/"/>
+    <id>https://blog.cosinuswx.com/posts/1189917582/</id>
+    <published>2017-02-28T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;原文：&lt;a href=&quot;http://lwn.net/Articles/262464/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;What is RCU, Fundamentally?&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[编者注：本篇是 “read-copy-update 机制是如何工作的” 的三篇系列文章中的第一篇。非常感谢 Paul McKenney 和 Jonathan Walpole 允许我们发布这些文章。剩下的两篇文章将在最近发布。]&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+      <category term="driver" scheme="https://blog.cosinuswx.com/categories/android/driver/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="driver" scheme="https://blog.cosinuswx.com/tags/driver/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>android签名文件存放的另一种方式</title>
+    <link href="https://blog.cosinuswx.com/posts/4260119147/"/>
+    <id>https://blog.cosinuswx.com/posts/4260119147/</id>
+    <published>2016-12-20T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;1-签名文件&quot;&gt;&lt;a href=&quot;#1-签名文件&quot; class=&quot;headerlink&quot; title=&quot;1. 签名文件&quot;&gt;&lt;/a&gt;1. 签名文件&lt;/h2&gt;&lt;p&gt;android开发的最终目的，就是要将Release版本发布给用户使用。编译Release最重要的一步，就是应用签名。android系统要求每个应用都需要有签名，android系统不会安装没有签名的app。&lt;/p&gt;
+&lt;p&gt;如何生成签名文件的教程网上较多，这里就不重复。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="gradle" scheme="https://blog.cosinuswx.com/tags/gradle/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>应用中带编译信息</title>
+    <link href="https://blog.cosinuswx.com/posts/110554039/"/>
+    <id>https://blog.cosinuswx.com/posts/110554039/</id>
+    <published>2016-12-03T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;做业务开发的时候，经常可能遇到的问题就是老板或者产品经理需要体验新版本。他们体验完后，说有个功能为啥没实现，结果你查了半天发现他们用的是旧的版本，并没有那个功能。&lt;/p&gt;
+&lt;p&gt;为了再次防止这种场景的出现，我们需要能给每个版本一个唯一的标识。一般发布给用户用的版本，都会使用一个唯一的版本号，但是给产品经理或者老板体验的时候，并不会每次都修改版本号。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何编译CyanogenMod系统</title>
+    <link href="https://blog.cosinuswx.com/posts/517805189/"/>
+    <id>https://blog.cosinuswx.com/posts/517805189/</id>
+    <published>2016-10-09T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;相信很多android开发者都编译过android系统，我之前也编译过android系统，但是编译完后，打开虚拟机玩了玩。但是没法用来调试，如果编译的是arm版本运行速度又很慢，所以编译完后，基本就荒废了。&lt;/p&gt;
+&lt;p&gt;但是编译真机的系统的话，就可以通过定制一些系统选项，或者修改系统的源码，以方便开发或调试，比如：&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+      <category term="rom" scheme="https://blog.cosinuswx.com/categories/android/rom/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="rom" scheme="https://blog.cosinuswx.com/tags/rom/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>【译】Android图形架构</title>
+    <link href="https://blog.cosinuswx.com/posts/1763227376/"/>
+    <id>https://blog.cosinuswx.com/posts/1763227376/</id>
+    <published>2016-03-05T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;https://source.android.com/devices/graphics/architecture.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;原文链接&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;每个开发者都应该了解Surface、SurfaceHolder、EGLSurface、SurfaceView、GLSurfaceView、SurfaceTexture、TextureView和SurfaceFlinger。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;本文描述了Android系统级图形架构的关键元素，以及它是如何被应用程序框架和多媒体系统使用的。重点在于图像数据缓存如何在系统间流转。如果你曾经好奇为什么SurfaceView和TextureView会这样实现，或者Surface和EGLSurface是如何交互的，那么你来对了地方。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>RenderScript的基础使用</title>
+    <link href="https://blog.cosinuswx.com/posts/324364040/"/>
+    <id>https://blog.cosinuswx.com/posts/324364040/</id>
+    <published>2015-10-06T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Renderscript是Android操作系统上的一套API。它基于异构计算思想（指使用不同类型指令集和体系架构的计算单元组成系统的计算方式），专门用于密集型计算，尤其是图像处理、计算机图形、计算机视觉。允许开发者以较少的代码实现功能复杂且性能优越的应用程序。&lt;/p&gt;
+&lt;p&gt;RenderScript可在设备上所有可用的处理器上并行执行，例如多核CPU、GPU、DSP，所以开发者可以专心写处理算法，而不需要关心调度和负载平衡的问题。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>测试给andorid编写驱动</title>
+    <link href="https://blog.cosinuswx.com/posts/2952791095/"/>
+    <id>https://blog.cosinuswx.com/posts/2952791095/</id>
+    <published>2015-08-16T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;一、设备与驱动&quot;&gt;&lt;a href=&quot;#一、设备与驱动&quot; class=&quot;headerlink&quot; title=&quot;一、设备与驱动&quot;&gt;&lt;/a&gt;一、设备与驱动&lt;/h2&gt;&lt;p&gt;本文中会创建一个字符设备（&lt;a href=&quot;https://github.com/cosinuswx/AndroidMisc/tree/develop/driver/membuff&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;源代码&lt;/a&gt;），放在 &lt;em&gt;/dev&lt;/em&gt; 下面，设备里面为一块内存，里面可以存储一定的内容。如果以写方式打开设备的话，可以往设备里面写入数据，当返回 &lt;em&gt;-ENOSPC&lt;/em&gt; 时，表示设备已满，无法再写入。如果以读方式打开设备的话，可以从设备里面读取数据，每次都是从头开始读取，如果没有更多内容的时候，返回0，表示结束。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="driver" scheme="https://blog.cosinuswx.com/tags/driver/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>java中的枚举类型解析</title>
+    <link href="https://blog.cosinuswx.com/posts/1734405025/"/>
+    <id>https://blog.cosinuswx.com/posts/1734405025/</id>
+    <published>2015-07-13T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;学过c/c++的同学都知道，c/c++里面的枚举变量在编译的时候，都会用相应的值替换掉枚举常量。&lt;br&gt;java里面也有枚举类型，那么java里面的枚举是否和c/c++里面的枚举类型一样呢？&lt;/p&gt;
+&lt;h3 id=&quot;分析过程&quot;&gt;&lt;a href=&quot;#分析过程&quot; class=&quot;headerlink&quot; title=&quot;分析过程&quot;&gt;&lt;/a&gt;分析过程&lt;/h3&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+      <category term="java" scheme="https://blog.cosinuswx.com/categories/android/java/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="java" scheme="https://blog.cosinuswx.com/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java中数字书写的小技巧</title>
+    <link href="https://blog.cosinuswx.com/posts/1334535007/"/>
+    <id>https://blog.cosinuswx.com/posts/1334535007/</id>
+    <published>2015-06-12T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;App开发中，通常需要有个值来表示app的版本号，比如下面的常量是我们app标识当前版本的。其中第一位表示android，第二三位02表示主版本号，四五位00表示子版本号，最后三位009表示迭代号。&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; CLIENT_VERSION = &lt;span class=&quot;number&quot;&gt;0x10200009&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+      <category term="java" scheme="https://blog.cosinuswx.com/categories/android/java/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="java" scheme="https://blog.cosinuswx.com/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>数字音频基础</title>
+    <link href="https://blog.cosinuswx.com/posts/668326027/"/>
+    <id>https://blog.cosinuswx.com/posts/668326027/</id>
+    <published>2014-12-28T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;大家好，今天我给大家介绍些音频基础知识。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;既然要介绍音频基础，那么问题来了，什么是声音呢？&lt;/code&gt;&lt;/p&gt;
+&lt;h2 id=&quot;1-什么是声音以及声音的性质&quot;&gt;&lt;a href=&quot;#1-什么是声音以及声音的性质&quot; class=&quot;headerlink&quot; title=&quot;1. 什么是声音以及声音的性质&quot;&gt;&lt;/a&gt;1. 什么是声音以及声音的性质&lt;/h2&gt;
+    
+    </summary>
+    
+      <category term="音视频" scheme="https://blog.cosinuswx.com/categories/%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
+    
+    
+      <category term="音视频" scheme="https://blog.cosinuswx.com/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何反编译.class文件及阅读java指令</title>
+    <link href="https://blog.cosinuswx.com/posts/100074889/"/>
+    <id>https://blog.cosinuswx.com/posts/100074889/</id>
+    <published>2014-11-04T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;有时候需要通过阅读java指令来学习java的某些语法的处理过程，因此就需要反编译.class文件。  &lt;/p&gt;
+&lt;p&gt;java文件通过编译后生成.class，如果需要阅读java文件对应的java虚拟机指令，则需要通过javap来反编译.class文件。&lt;/p&gt;
+&lt;p&gt;比如，有一段代码如下：&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+      <category term="java" scheme="https://blog.cosinuswx.com/categories/android/java/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+      <category term="java" scheme="https://blog.cosinuswx.com/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>笔记：高效程序员的45个习惯</title>
+    <link href="https://blog.cosinuswx.com/posts/1953926195/"/>
+    <id>https://blog.cosinuswx.com/posts/1953926195/</id>
+    <published>2014-09-15T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;态度决定一切&quot;&gt;&lt;a href=&quot;#态度决定一切&quot; class=&quot;headerlink&quot; title=&quot;态度决定一切&quot;&gt;&lt;/a&gt;态度决定一切&lt;/h3&gt;&lt;h4 id=&quot;做事&quot;&gt;&lt;a href=&quot;#做事&quot; class=&quot;headerlink&quot; title=&quot;做事&quot;&gt;&lt;/a&gt;做事&lt;/h4&gt;&lt;ol&gt;
+&lt;li&gt;把重点放在解决问题上，而不是在指责犯错者上&lt;/li&gt;
+&lt;li&gt;一个重大的错误应该被当成是一次学习而不是指责他人的机会&lt;/li&gt;
+&lt;li&gt;勇于承认自己不知道答案，这会让人感觉放心&lt;/li&gt;
+&lt;li&gt;团队成员在一起工作，应互相帮助，而不是互相指责&lt;/li&gt;
+&lt;/ol&gt;
+    
+    </summary>
+    
+      <category term="职场" scheme="https://blog.cosinuswx.com/categories/%E8%81%8C%E5%9C%BA/"/>
+    
+    
+      <category term="职场" scheme="https://blog.cosinuswx.com/tags/%E8%81%8C%E5%9C%BA/"/>
+    
+      <category term="程序员" scheme="https://blog.cosinuswx.com/tags/%E7%A8%8B%E5%BA%8F%E5%91%98/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>各种简写的含义</title>
+    <link href="https://blog.cosinuswx.com/posts/1926634976/"/>
+    <id>https://blog.cosinuswx.com/posts/1926634976/</id>
+    <published>2014-05-19T00:00:00.000Z</published>
+    <updated>2020-07-31T17:13:24.085Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;IMEI&quot;&gt;&lt;a href=&quot;#IMEI&quot; class=&quot;headerlink&quot; title=&quot;IMEI&quot;&gt;&lt;/a&gt;&lt;code&gt;IMEI&lt;/code&gt;&lt;/h2&gt;&lt;p&gt;International Mobile Equipment Identification Number，国际移动设备识别码&lt;br&gt;由15位数字组成，其组成为：  &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;前6位数（TAC，Type ApprovalCode)是”型号核准号码”，一般代表机型。&lt;/li&gt;
+&lt;li&gt;接着的2位数（FAC，Final Assembly Code)是”最后装配号”，一般代表产地。&lt;/li&gt;
+&lt;li&gt;之后的6位数（SNR)是”串号”，一般代表生产顺序号。&lt;/li&gt;
+&lt;li&gt;最后1位数（SP)通常是”0”，为检验码，备用。&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/categories/android/"/>
+    
+    
+      <category term="android" scheme="https://blog.cosinuswx.com/tags/android/"/>
+    
+  </entry>
+  
+</feed>

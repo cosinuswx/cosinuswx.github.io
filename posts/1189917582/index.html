@@ -1,0 +1,218 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="【译】基础篇：RCU是什么？"><meta name="keywords" content="android,driver"><meta name="author" content="Cosinus Wx"><meta name="copyright" content="Cosinus Wx"><title>【译】基础篇：RCU是什么？ | Cosinus.Wx's Blog</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.7.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script><!-- hexo-inject:begin --><!-- hexo-inject:end -->var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '已复制',
+    error: '复制失败',
+    noSupport: '浏览器不支持复制'
+  }
+} </script><meta name="generator" content="Hexo 4.2.0"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="显示文章目录">显示博客信息</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">当前已读</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#介绍"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#发布-—-订阅机制"><span class="toc-text">发布 — 订阅机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#等待已存在的读者执行完毕"><span class="toc-text">等待已存在的读者执行完毕</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#管理被更新对象的多个版本"><span class="toc-text">管理被更新对象的多个版本</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#例1：管理删除时的多个版本"><span class="toc-text">例1：管理删除时的多个版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#例2：管理替换时的多版本"><span class="toc-text">例2：管理替换时的多版本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#讨论"><span class="toc-text">讨论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#及时练习的答案"><span class="toc-text">及时练习的答案</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/images/avatar.jpg"></div><div class="author-info__name text-center">Cosinus Wx</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">21</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">11</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">8</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">快速访问</div><a class="author-info-links__name text-center" href="/about">关于</a><a class="author-info-links__name text-center" href="/atom.xml">RSS</a></div></div></div><div id="content-outer"><div class="plain" id="top-container"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Cosinus.Wx's Blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">HOME</a><a class="site-page" href="/archives">ARCHIVES</a><a class="site-page" href="/tags">TAGS</a><a class="site-page" href="/categories">CATEGORIES</a><a class="site-page" href="/about">ABOUT</a></span><span class="pull-right"></span></div></div><div class="layout" id="content-inner"><article id="post"><div class="plain" id="post-title">【译】基础篇：RCU是什么？</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2017-02-28</time><span class="post-meta__separator">|</span><i class="fa fa-inbox" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/android/"> android</a><i class="fa fa-angle-right post-meta__separator" aria-hidden="true"></i><i class="fa fa-inbox" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/android/driver/"> driver</a></div><div class="article-container" id="post-content"><p>原文：<a href="http://lwn.net/Articles/262464/" target="_blank" rel="noopener">What is RCU, Fundamentally?</a></p>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><p>[编者注：本篇是 “read-copy-update 机制是如何工作的” 的三篇系列文章中的第一篇。非常感谢 Paul McKenney 和 Jonathan Walpole 允许我们发布这些文章。剩下的两篇文章将在最近发布。]</p>
+<a id="more"></a>
+
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Read-copy update (RCU) 是一个同步机制，在2002年10月份加入Linux内核中。RCU通过在更新的同时允许并行读取来提高可扩展性。与其他锁对比，传统锁机制保证多个线程互斥访问资源，而无论它们是读者还是更新者；读写锁允许多个线程读，但是更新的时候，不会出现读者；RCU支持一个更新者和多个读者同时访问。通过维护对象的多个版本，RCU保证读者看到的对象是前后一致的，并且保证在所有之前已存在的读者离开临界区时，这些版本才会被释放。RCU定义并使用了效率高且扩展性高的机制，用来生成和读取对象的新版本及管理旧版本。该机制可以使得读者执行非常快，在某些场景下（无内核抢占），RCU的读者简单到无负载。</p>
+<p><strong>及时练习 1：</strong>seqlock是否也允许读者和更新者同时完成任务？</p>
+<p>这就导致了该问题”RCU到底是什么？”，也可能导致另外一个问题”RCU可能是怎么工作的？”。本文从基础层面来分析这些问题；后面的部分从API层面来看它们怎么使用，最后的部分包括一个引文列表。</p>
+<p>RCU由三个基础机制组成，第一个用来插入，第二个用来删除，第三个使得读的同时可以插入和删除。这些机制将在后续的小节分析，下面是它们的列表：</p>
+<ol>
+<li>发布 — 订阅机制（插入使用）</li>
+<li>等待已存在的读者执行完成（删除使用）</li>
+<li>维护对象最近更新的多个版本（读者使用）</li>
+</ol>
+<h2 id="发布-—-订阅机制"><a href="#发布-—-订阅机制" class="headerlink" title="发布 — 订阅机制"></a>发布 — 订阅机制</h2><p>RCU一个关键属性是数据同时被修改，也能安全的读取数据。为了提供并行插入的能力，RCU使用类似于发布—订阅的机制。例如，一个初始化为NULL的全局指针gp，准备被修改指向到一个新创建并初始化的数据结构。下面的代码段可以用来完成这个目的（并且适当得使用了锁）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">foo</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> a;</span><br><span class="line">  <span class="keyword">int</span> b;</span><br><span class="line">  <span class="keyword">int</span> c;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">foo</span> *<span class="title">gp</span> = <span class="title">NULL</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* . . . */</span></span><br><span class="line"></span><br><span class="line">p = kmalloc(<span class="keyword">sizeof</span>(*p), GFP_KERNEL);</span><br><span class="line">p-&gt;a = <span class="number">1</span>;</span><br><span class="line">p-&gt;b = <span class="number">2</span>;</span><br><span class="line">p-&gt;c = <span class="number">3</span>;</span><br><span class="line">gp = p;</span><br></pre></td></tr></table></figure>
+
+<p>不幸的是，这里并没有什么内容强制编译器和CPU按顺序执行最后的4句赋值语句。如果gp的赋值在p的成员初始化之前执行，那么并行执行的读者将看到未被初始化的值。内存栅栏用来强制代码顺序执行，但是内存栅栏难以使用。因此我们将其封装到一个简单的函数 rcu_assign_pointer()。最后四句就可以写成：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">p-&gt;a = <span class="number">1</span>;</span><br><span class="line">p-&gt;b = <span class="number">2</span>;</span><br><span class="line">p-&gt;c = <span class="number">3</span>;</span><br><span class="line">rcu_assign_pointer(gp, p);</span><br></pre></td></tr></table></figure>
+
+<p>rcu_assign_pointer() 将 <strong>发布</strong> 新的结构，强制编译器和CPU在p的成员赋值完以后，再执行gp的赋值。</p>
+<p>然而只强制更新者的顺序是不够的，读者也需要强制顺序。思考下面的代码段：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">p = gp;</span><br><span class="line"><span class="keyword">if</span> (p != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    do_something_with(p-&gt;a, p-&gt;b, p-&gt;c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>尽管该代码段好像无错位的影响，不幸的是，在DEC Alpha CPU和值猜测（value-speculation）的编译器上，可能会出现在p赋值之前获取p-&gt;a、p-&gt;b、p-&gt;c的值！也许很容易看出，在值猜测的编译器优化中，编译器先猜测p的值，然后获取p-&gt;a、p-&gt;b、p-&gt;c的值，然后再去检查p的值来验证猜测是否正确。这种优化十分激进，但是的确会在性能驱动的优化中出现。</p>
+<p>很明显，我们需要在编译器和CPU中都禁止这类欺骗，rcu_dereference() 使用内存栅栏和编译器指令来到达这种目的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rcu_read_lock();</span><br><span class="line">p = rcu_dereference(gp);</span><br><span class="line"><span class="keyword">if</span> (p != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    do_something_with(p-&gt;a, p-&gt;b, p-&gt;c);</span><br><span class="line">&#125;</span><br><span class="line">rcu_read_unlock();</span><br></pre></td></tr></table></figure>
+
+<p>rcu_dereference 可以认为是对特定指针特定值的订阅，保证后续的解引用操作的值是在对应的发布操作(rcu_assign_pointer())前初始化的值。rcu_read_lock()和rcu_read_unlock()是必须的：它们定义RCU读者的临界区的范围。它们的作用在下一节解释，可是它们不会自旋或阻塞，也没有阻止list_add_rcu的并行执行。实际上，在没有配置CONFIG_PREEMPT的内核中，它们完成不生成代码。</p>
+<p>尽管 rcu_assign_pointer() 和 rcu_dereference() 理论上可以用来构成任何可想到的RCU保护的数据结构，实际上更好的做法是使用更高级的抽象。因此 rcu_assign_pointer() 和 rcu_dereference() 被内嵌到了Linux的list操作api的变种中。Linux有两个双向链表的变种：循环链表 struct list_head 和 线性链表 struct hlist_head / struct hlist_node。前者如下图所示，绿色方块表示list的头，蓝色方块表示list的元素。</p>
+<p><img src="/images/rcu/Linux_list.jpg" alt=""></p>
+<p>将发布指针的例子修改为发布链表后如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">foo</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">list</span>;</span></span><br><span class="line">    <span class="keyword">int</span> a;</span><br><span class="line">    <span class="keyword">int</span> b;</span><br><span class="line">    <span class="keyword">int</span> c;</span><br><span class="line">&#125;;</span><br><span class="line">LIST_HEAD(head);</span><br><span class="line"> </span><br><span class="line"><span class="comment">/* . . . */</span></span><br><span class="line"> </span><br><span class="line">p = kmalloc(<span class="keyword">sizeof</span>(*p), GFP_KERNEL);</span><br><span class="line">p-&gt;a = <span class="number">1</span>;</span><br><span class="line">p-&gt;b = <span class="number">2</span>;</span><br><span class="line">p-&gt;c = <span class="number">3</span>;</span><br><span class="line">list_add_rcu(&amp;p-&gt;<span class="built_in">list</span>, &amp;head);</span><br></pre></td></tr></table></figure>
+
+<p>第15行必须通过一些同步机制（通常情况下是某种锁）来防止多个 list_add() 实例并行执行。然而，该同步不会阻止 执行 list_add() 的同时，并行执行RCU读取。</p>
+<p>订阅RCU保护的队列是比较简单的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">rcu_read_lock();</span><br><span class="line">list_for_each_entry_rcu(p, head, <span class="built_in">list</span>) &#123;</span><br><span class="line">    do_something_with(p-&gt;a, p-&gt;b, p-&gt;c);</span><br><span class="line">&#125;</span><br><span class="line">rcu_read_unlock();</span><br></pre></td></tr></table></figure>
+
+<p>list_add_rcu() 向特定的列表发布一项，保证对应的 list_for_each_entry_rcu() 调用能够订阅到同一项。</p>
+<p><strong>及时练习2：</strong>如果 list_for_each_entry_rcu() 在 list_add_rcu() 执行的时候同时执行，用什么能够防止它出现段错误（segfault）。</p>
+<p>Linux的另外一个双向链表hlist是一个线性链表，意味着它只需要一个指针来保存头部，而不需要两个。因此，对于较大的hash链表，能够将hash表的桶数组内存占用减半。</p>
+<p><img src="/images/rcu/Linux_hlist.jpg" alt=""></p>
+<p>向RCU保护的hlist发布一个新元素所做的和循环链表list类似：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">foo</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hlist_node</span> *<span class="title">list</span>;</span></span><br><span class="line">    <span class="keyword">int</span> a;</span><br><span class="line">    <span class="keyword">int</span> b;</span><br><span class="line">    <span class="keyword">int</span> c;</span><br><span class="line">&#125;;</span><br><span class="line">HLIST_HEAD(head);</span><br><span class="line"> </span><br><span class="line"><span class="comment">/* . . . */</span></span><br><span class="line"></span><br><span class="line">p = kmalloc(<span class="keyword">sizeof</span>(*p), GFP_KERNEL);</span><br><span class="line">p-&gt;a = <span class="number">1</span>;</span><br><span class="line">p-&gt;b = <span class="number">2</span>;</span><br><span class="line">p-&gt;c = <span class="number">3</span>;</span><br><span class="line">hlist_add_head_rcu(&amp;p-&gt;<span class="built_in">list</span>, &amp;head);</span><br></pre></td></tr></table></figure>
+
+<p>和之前的一样，第15行需要通过某种同步机制保护，比如锁。</p>
+<p>向RCU保护的hlist订阅也和循环链表list类似：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">rcu_read_lock();</span><br><span class="line">hlist_for_each_entry_rcu(p, q, head, <span class="built_in">list</span>) &#123;</span><br><span class="line">    do_something_with(p-&gt;a, p-&gt;b, p-&gt;c);</span><br><span class="line">&#125;</span><br><span class="line">rcu_read_unlock();</span><br></pre></td></tr></table></figure>
+
+<p><strong>及时练习3：</strong>为什么需要传入两个指针给 hlist_for_each_entry_rcu()，而只需传入一个指针给 list_for_each_entry_rcu()</p>
+<p>RCU的发布和订阅的原型如下表所示，增加了撤销的原型：</p>
+<table>
+<thead>
+<tr>
+<th>种类</th>
+<th>发布</th>
+<th>撤销</th>
+<th>订阅</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>指针</td>
+<td>rcu_assign_pointer()</td>
+<td>rcu_assign_pointer(…, NULL)</td>
+<td>rcu_dereference()</td>
+</tr>
+<tr>
+<td>list</td>
+<td>list_add_rcu()<br>list_add_tail_rcu()<br>list_replace_rcu()</td>
+<td>list_del_rcu()</td>
+<td>list_for_each_entry_rcu()</td>
+</tr>
+<tr>
+<td>hlist</td>
+<td>hlist_add_after_rcu()<br>hlist_add_before_rcu()<br>hlist_add_head_rcu()<br>hlist_replace_rcu()</td>
+<td>hlist_del_rcu()</td>
+<td>hlist_for_each_entry_rcu()</td>
+</tr>
+</tbody></table>
+<p>注意到 list_replace_rcu()、list_del_rcu()、hlist_replace_rcu() 和 hlist_del_rcu() 新增了个疑点：什么时候可以安全释放被替换或删除的元素？关键是我们怎么知道所有的读者都释放了所引用的元素？</p>
+<p>这些问题将在下一节解释。</p>
+<h2 id="等待已存在的读者执行完毕"><a href="#等待已存在的读者执行完毕" class="headerlink" title="等待已存在的读者执行完毕"></a>等待已存在的读者执行完毕</h2><p>RCU在大部分情况下，也是一种等待事情完成的方式。当然，现在有许多等待事情完成的方式，包括引用计数(reference counter)、读写锁(reader-writer locks)、事件(events) 等等。RCU最大的好处在于能够等待 20000 个不同的东西，而不用显示地跟踪它们，所以不用担心性能下降、扩展性限制、复杂的死锁场景、内存泄露。</p>
+<p>使用RCU时，需要等待的东西被称为”RCU读者临界区”。RCU读者临界区从 rcu_read_lock() 开始，到 rcu_read_unlock() 结束。RCU读者临界区可以内嵌使用，也可以包含很多代码，只要代码没有阻塞或睡眠（有个RCU的特殊形式”SRCU”，可以允许SRCU读者临界区睡眠）。如果你可以接受这些约定，你就能使用RCU来等待任何代码断执行完毕。</p>
+<p>RCU通过间接的判断其他事情结束，来完成这个目标，和RCU Classic和实时RCU中介绍的一样。</p>
+<p>如下图所示，RCU会等待已存在的RCU读者临界区执行完毕，包括临界区中的内存操作。</p>
+<p><img src="/images/rcu/GracePeriodGood.png" alt=""></p>
+<p>然而，注意到在特定的Grace Period后开始的读者临界区，可以超过Grace Period结束点。</p>
+<p>下面的伪代码展示RCU用来等待读者的算法基本结构：</p>
+<ol>
+<li>做一些修改，例如：替换链表中的一个元素</li>
+<li>等待所有已存在的读者临界区执行完毕（例如，使用 synchronsize_rcu()）。这里的关键点在于后续的RCU读者临界区没有办法获取到最近被移除的元素。</li>
+<li>清理，例如，释放被替换的元素</li>
+</ol>
+<p>下面的代码段在上一节的代码基础上修改，用来解释这个流程，成员a是search的key参数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">foo</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">list</span>;</span></span><br><span class="line">    <span class="keyword">int</span> a;</span><br><span class="line">    <span class="keyword">int</span> b;</span><br><span class="line">    <span class="keyword">int</span> c;</span><br><span class="line">&#125;;</span><br><span class="line">LIST_HEAD(head);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* . . . */</span></span><br><span class="line"></span><br><span class="line">p = search(head, key);</span><br><span class="line"><span class="keyword">if</span> (p == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="comment">/* Take appropriate action, unlock, and return. */</span></span><br><span class="line">&#125;</span><br><span class="line">q = kmalloc(<span class="keyword">sizeof</span>(*p), GFP_KERNEL);</span><br><span class="line">*q = *p;</span><br><span class="line">q-&gt;b = <span class="number">2</span>;</span><br><span class="line">q-&gt;c = <span class="number">3</span>;</span><br><span class="line">list_replace_rcu(&amp;p-&gt;<span class="built_in">list</span>, &amp;q-&gt;<span class="built_in">list</span>);</span><br><span class="line">synchronize_rcu();</span><br><span class="line">kfree(p);</span><br></pre></td></tr></table></figure>
+
+<p>19,20和21实现了上面说的三个步骤。16-19行就是RCU(“read-copy update”)名字的由来：在允许并行的读操作时，16行复制，17-19行执行更新。</p>
+<p>synchronize_rcu() 刚开始看可能有点神秘。毕竟，它必须等待所有的RCU读者临界区执行完，而且我们前面也提到，用来定义临界区范围的rcu_read_lock() 和 rcu_read_unlock() 的函数在无 CONFIG_PREEMPT 内核中完全不生成代码！</p>
+<p>这其实是一个trick：RCU读者临界区中的代码不允许阻塞或睡眠。因此，当特定的CPU执行了上下文切换后，我们就能保证前面的RCU读者临界区已经执行完了。也就意味着，只要每个CPU都至少执行了一次上下文切换，所有之前的RCU读者临界区都能保证执行完了，也就意味着synchronize_rcu() 可以安全返回了。</p>
+<p>因此，RCU在概念上可以简化为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">for_each_online_cpu(cpu)</span><br><span class="line">    run_on(cpu);</span><br></pre></td></tr></table></figure>
+
+<p>这里，run_on() 将当前线程切换到指定CPU，强制CPU进行线程切换（译者注：循环的每次 run_on() 都只能在线程切换后得到执行）。因此 for_each_online_cpu() 强制每个CPU执行线程切换，保证之前的所有RCU读者临界区都按要求执行完了。这种简单的方法在RCU读者临界区执行的时候，禁用掉抢占是能够正常工作，换句话说，在无 CONFIG_PREEMPT 或者 CONFIG_PREEMPT 的能正常工作，但是在 CONFIG_PREEMPT_RT 的内核中无法正常工作。因此，实时RCU使用另一种基于引用计数的方法。</p>
+<p>当然，Linux内核的具体实现要更复杂，因为它需要处理中断、NMIs、CPU热插拔，但是同时也有更好的性能及扩展性。RCU的实时实现必须还得提供好的实时响应，并且得排除依赖于禁止中断的实现。</p>
+<p>尽管已经知道了 synchronize_rcu() 的简单概念实现，还剩下其他的问题。比如，当RCU读者遍历正在并行修改的列表时，看到的是什么样？这个问题下一节解释。</p>
+<h2 id="管理被更新对象的多个版本"><a href="#管理被更新对象的多个版本" class="headerlink" title="管理被更新对象的多个版本"></a>管理被更新对象的多个版本</h2><p>本节解析RCU是如何通过管理多个list的版本来实现不需同步的读取。两个例子来展示在读者还在其RCU临界区的时候，该读者所引用的元素还完整的保存着。第一个例子分析删除列表元素，第二个例子分析替换列表元素。</p>
+<h3 id="例1：管理删除时的多个版本"><a href="#例1：管理删除时的多个版本" class="headerlink" title="例1：管理删除时的多个版本"></a>例1：管理删除时的多个版本</h3><p>在开始”删除”的例子前，我们将上面的例子的 11-21 行修改成下面这样：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">p = search(head, key);</span><br><span class="line"><span class="keyword">if</span> (p != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    list_del_rcu(&amp;p-&gt;<span class="built_in">list</span>);</span><br><span class="line">    synchronize_rcu();</span><br><span class="line">    kfree(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>list的初始状态如下，包括指针p。</p>
+<p><img src="/images/rcu/MultiVersion1.jpg" alt=""></p>
+<p>每个元素的三个数字分别代表a、b、c的值。红色边框的元素表示读者可能引用了它们，因为读者并不与更新者直接同步，读者可能在更新过程中同时执行。请注意，为了简单，我们忽略了元素的向后及最后一个元素指向链表头的指针。</p>
+<p>第3行的 list_del_rcu() 执行完后，[5,6,7]从列表中移除，如下图所示。因为读者不直接和更新者同步，读者可能并行遍历链表。这些并行执行的读者可能看见，也可能没看到最近被移除的元素，依赖于时间。然而，在获取到最新被移除的元素，然后被延时（例如：出现中断，ECC内存错误，或者在CONFIG_PREEMPT_RT内核中被抢占）的读者，会在元素被移除后一段时间内还看到旧版本。因此，我们现在有链表的两个版本，一个有元素[5,6,7]，一个没有。[5,6,7]的边框还是红色的，代表还有读者引用着它。</p>
+<p><img src="/images/rcu/MultiVersionDelete2.jpg" alt=""></p>
+<p>请注意，读者在退出它们的临界区时，不能在保存[5,6,7]的引用。因此，一旦第四行的 synchroneize_rcu() 执行完后，所有已经存在的读者都保证执行完了，也没有其他的读者能引用这个元素，如下图的黑框表示的一样。因此可以回到只有一个版本的链表。</p>
+<p><img src="/images/rcu/MultiVersionDelete3.jpg" alt=""></p>
+<p>现在，[5,6,7]这个元素就可以安全的释放了，如下图：</p>
+<p><img src="/images/rcu/MultiVersionDelete4.jpg" alt=""></p>
+<p>现在，我们完成了删除[5,6,7]这个元素。下面讨论替换。</p>
+<h3 id="例2：管理替换时的多版本"><a href="#例2：管理替换时的多版本" class="headerlink" title="例2：管理替换时的多版本"></a>例2：管理替换时的多版本</h3><p>在开始”替换”的例子前，我们将上面的例子修改几行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">q = kmalloc(<span class="keyword">sizeof</span>(*p), GFP_KERNEL);</span><br><span class="line">*q = *p;</span><br><span class="line">q-&gt;b = <span class="number">2</span>;</span><br><span class="line">q-&gt;c = <span class="number">3</span>;</span><br><span class="line">list_replace_rcu(&amp;p-&gt;<span class="built_in">list</span>, &amp;q-&gt;<span class="built_in">list</span>);</span><br><span class="line">synchronize_rcu();</span><br><span class="line">kfree(p);</span><br></pre></td></tr></table></figure>
+
+<p>list的初始状态如下，包括指针p，和删除的例子一样：</p>
+<p><img src="/images/rcu/MultiVersion1-2.jpg" alt=""></p>
+<p>和之前一样，每个元素的三个数字分别代表a、b、c的值。红色边框的元素表示读者可能引用了它们，因为读者并不与更新者直接同步，读者可能在更新过程中同时执行。请注意，为了简单，我们忽略了元素的向后及最后一个元素指针链表头的指针。</p>
+<p>第一行，kmalloc() 分配一个用来替换的元素，如下图：</p>
+<p><img src="/images/rcu/MultiVersion2.jpg" alt=""></p>
+<p>第二行，复制旧元素的内容到新元素中：</p>
+<p><img src="/images/rcu/MultiVersion3.jpg" alt=""></p>
+<p>第三行，将q-&gt;b的值更新为”2”：</p>
+<p><img src="/images/rcu/MultiVersion4.jpg" alt=""></p>
+<p>第四行，将q-&gt;c的值更新为”3”：</p>
+<p><img src="/images/rcu/MultiVersion5.jpg" alt=""></p>
+<p>第5行执行替换，所以新元素终于对读者可见了。现在，我们有链表的两个版本了，如下图所示。之前已经存在的读者能看到[5,6,7]，但是新读者将看到[5,2,3]。但是任何一个读者都是看到完整的链表。</p>
+<p><img src="/images/rcu/MultiVersion6.jpg" alt=""></p>
+<p>第6行的 synchronize_rcu() 返回后，Grace Period 时期已经过了，所以在 list_replace_rcu 之前出现的读者已经执行完了。之前持有[5,6,7]的引用的读者都保证退出了它们的临界区，并且禁止继续持有引用。因此没有任何读者还持有旧版本的元素，如下图[5,6,7]的黑框所示。涉及到的读者已经没了，我们也回到了只有一个版本的链表，并且新的元素替换了旧元素。</p>
+<p><img src="/images/rcu/MultiVersion7.jpg" alt=""></p>
+<p>在第7行的 kfree() 执行完后，列表成下面的样子了：</p>
+<p><img src="/images/rcu/MultiVersion8.jpg" alt=""></p>
+<p>尽管实际上RCU是用更新的场景命名的，但是Linux中RCU最大的作用是用来删除，和前一节类似。</p>
+<h2 id="讨论"><a href="#讨论" class="headerlink" title="讨论"></a>讨论</h2><p>上面的例子都假设在整个的更新过程中，是互斥的，也就意味着任何时间最多有两个链表的版本。</p>
+<p><strong>及时练习 4：</strong>如何修改”删除”的例子，以允许超过链表的两个版本？</p>
+<p><strong>及时练习 5：</strong>特定时间下，特定链表能有多少RCU的版本是活动的？</p>
+<p>两个例子展示了RCU利用多版本在有并行的读者时，安全地执行修改。当然，某些算法无法优雅的处理多版本。有一些<a href="http://www.rdrop.com/users/paulmck/RCU/RCUdissertation.2004.07.14e1.pdf" target="_blank" rel="noopener">技术 pdf</a>能够将这些算法修改以试用RCU，但是超过了本文的范围。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文描述了RCU的三个基础算法：</p>
+<ol>
+<li>发布—订阅机制，用来增加新数据</li>
+<li>等待之前的RCU读者执行完成的方法</li>
+<li>维护多版本的准则，而不会伤害到并行执行的RCU读者</li>
+</ol>
+<p>RCU的三大组件在面对并行执行的读者的时候，能够更新数据，并且能够组合各种不同的算法来实现各种美妙的基于RCU的算法，某些算法是本系列的下一篇”What is RCU, Really?”的主题。</p>
+<h2 id="及时练习的答案"><a href="#及时练习的答案" class="headerlink" title="及时练习的答案"></a>及时练习的答案</h2><p><strong>及时练习 1：</strong>seqlock是否也允许读者和更新者同时完成任务？</p>
+<p><strong>答案：</strong>也是也不是。尽管 seqlock 的读者能和 seqlock 的写者能够并行执行，但是无论何时出现这种情况，read_seqretry() 都会强制读者重试。也就意味着读者在与写者并行执行时的工作都将被忽略且需要重做。所以 seqlock 的读者可以和更新者并行执行，但是这种情况下实际上没做什么工作。</p>
+<p>相反，RCU读者在与RCU更新者并行执行的时候，执行的是有用的工作。</p>
+<p><strong>及时练习2：</strong>如果 list_for_each_entry_rcu() 在 list_add_rcu() 执行的时候同时执行，用什么能够防止它出现段错误（segfault）。</p>
+<p><strong>答案：</strong>在所有运行linux的系统上，读取指针和写入指针都是原子操作，因此，如果在写入指针的同时读取同样的指针，读取出来的值，要么是初始的值，要么是写入后的值，而不会时两个值的混合。并且，list_for_each_entry_rcu() 都是向前遍历，从不会向后遍历。因此，list_for_each_entry_rcu() 要不看到新增加的元素，要不看不到，看到的是一个完整的链表。</p>
+<p><strong>及时练习3：</strong>为什么需要传入两个指针给 hlist_for_each_entry_rcu()，而只需传入一个指针给 list_for_each_entry_rcu()。</p>
+<p><strong>答案：</strong>因为在hlist里面需要检查是否为NULL，而不是检查是否为head。</p>
+<p><strong>及时练习 4：</strong>如何修改删除的例子，来运行超过两个链表的版本？</p>
+<p><strong>答案：</strong>一个能达到目的的方法如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">spin_lock(&amp;mylock);</span><br><span class="line">p = search(head, key);</span><br><span class="line"><span class="keyword">if</span> (p == <span class="literal">NULL</span>)</span><br><span class="line">    spin_unlock(&amp;mylock);</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    list_del_rcu(&amp;p-&gt;<span class="built_in">list</span>);</span><br><span class="line">    spin_unlock(&amp;mylock);</span><br><span class="line">    synchronize_rcu();</span><br><span class="line">    kfree(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意这也就意味着多个并行的修改都将在 synchronize_rcu() 中等待。</p>
+<p><strong>及时练习 5：</strong>特定时间下，特定链表能有多少RCU的版本是活动的？</p>
+<p><strong>答案：</strong>这个依赖于同步机制的设计。如果在grace period时，使用semaphone来保护更新，那么最多两个版本，新的和旧的。</p>
+<p>然而，如果只有搜索、更新以及 list_replace_rcu() 是使用锁来保护，那么可以有任意多活动的版本，只受内存和grace period时期有多少次更新执行限制。但是需要注意的是，如果数据结构频繁更新的话，可能就不应该用RCU。也就是说，RCU只有在必须的时候，才能用来处理高频率的更新。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Cosinus Wx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">链接: </span><span class="post-copyright-info"><a href="https://blog.cosinuswx.com/posts/1189917582/">https://blog.cosinuswx.com/posts/1189917582/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权所有: </span><span class="post-copyright-info">除非另有说明，本博客所有文章均遵循<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a>协议.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/android/">android</a><a class="post-meta__tags" href="/tags/driver/">driver</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/posts/954459163/"><i class="fa fa-chevron-left">  </i><span>Camera2点击对焦实现</span></a></div><div class="next-post pull-right"><a href="/posts/4260119147/"><span>android签名文件存放的另一种方式</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 - 2020 By Cosinus Wx</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody" target="_blank" rel="noopener"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.7.0"></script><script src="/js/fancybox.js?version=1.7.0"></script><script src="/js/sidebar.js?version=1.7.0"></script><script src="/js/copy.js?version=1.7.0"></script><script src="/js/fireworks.js?version=1.7.0"></script><script src="/js/transition.js?version=1.7.0"></script><script src="/js/scroll.js?version=1.7.0"></script><script src="/js/head.js?version=1.7.0"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  CommonHTML: {
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "HTML-CSS": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "SVG": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  }
+});
+</script><script type="text/x-mathjax-config">MathJax.Hub.Queue(function() {
+  var all = MathJax.Hub.getAllJax(), i;
+  for (i=0; i < all.length; i += 1) {
+    all[i].SourceElement().parentNode.className += ' has-jax';
+  }
+});
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end --></body></html>
